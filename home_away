@@ -1,9 +1,13 @@
 import sys
 from copy import deepcopy
 import random
+import re
+from datetime import date, timedelta
 
 matchesPlayed = []
 venueBias = 0
+derbies = []
+timeSlots = ["5:30 pm", "3:00 pm", "12:00 pm"]
 dict = {}
 
 def construct_dictionary(team_count):
@@ -13,6 +17,106 @@ def construct_dictionary(team_count):
         else:
             dict[i] = 1
 
+def getDay(currDate):
+    if currDate.weekday() == 0:
+        return "Monday"
+    elif currDate.weekday() == 1:
+        return "Tuesday"
+    elif currDate.weekday() == 2:
+        return "Wednesday"
+    elif currDate.weekday() == 3:
+        return "Thursday"
+    elif currDate.weekday() == 4:
+        return "Friday"
+    elif currDate.weekday() == 5:
+        return "Saturday"
+    else:
+        return "Sunday"
+
+def sortTimeBased(sortedList):
+    ret = []
+    global timeSlots
+    count = 0
+    for count in range(0,len(sortedList)):
+        item = sortedList[count][1]
+        ret.append((timeSlots[count%3], item))
+    ret.sort()
+    print(ret)
+    return ret
+
+def getMonth(currDate):
+    if currDate.month == 1:
+        return "Jan"
+    elif currDate.month == 2:
+        return "Feb"
+    elif currDate.month == 3:
+        return "Mar"
+    elif currDate.month == 4:
+        return "Apr"
+    elif currDate.month == 5:
+        return "May"
+    elif currDate.month == 6:
+        return "June"
+    elif currDate.month == 7:
+        return "July"
+    elif currDate.month == 8:
+        return "Aug"
+    elif currDate.month == 9:
+        return "Sep"
+    elif currDate.month == 10:
+        return "Oct"
+    elif currDate.month == 11:
+        return "Nov"
+    else:
+        return "Dec"
+
+def generateDerbies(teamDict):
+    global derbies
+    for i in range(0, len(teamDict)):
+        for j in range(i+1, len(teamDict)):
+            if(teamDict[i][3]==teamDict[j][3]):
+                derbies.append((i, j))
+                derbies.append((j, i))
+            elif teamDict[i][1]==1.0 and teamDict[j][1]==1.0:
+                derbies.append((i, j))
+                derbies.append((j, i))
+
+def sortMatchList(matchList, teamDict):
+    sortedList  = []
+    for match in matchList:
+        added = False
+        team1 = teamDict[match[0]];
+        team2 = teamDict[match[1]];
+        totWeight = team1[1] + team2[1]
+        if len(sortedList) == 0:
+            item = (totWeight, match)
+            sortedList.append(item)
+            added = True
+            continue
+        for count in range(0,len(sortedList)):
+            if sortedList[count][0] < totWeight:
+                sortedList.insert(count, (totWeight, match))
+                added = True
+                break
+            elif sortedList[count][0] == totWeight:
+                if max(teamDict[sortedList[count][1][0]][1], teamDict[sortedList[count][1][1]][1]) < max(team1[1], team2[1]):
+                    sortedList.insert(count, (totWeight, match))
+                    added = True
+                    break
+        if added == False:
+            sortedList.append((totWeight, match))
+    return sortedList
+
+
+def getsundays(startDate, endDate):
+    ret = []
+    d = startDate                                    # start date
+    d += timedelta(days = 6 - d.weekday())         # First Sunday
+    while d < endDate:
+        ret.append(d)
+        d += timedelta(days = 7)
+    return ret
+
 #method to check if the assigned state is consistent
 def checkConsistency(match):
     global matchesPlayed
@@ -20,7 +124,6 @@ def checkConsistency(match):
         return False
     else:
         return True
-
 
 def chooseNextHomeTeam(matchList, weekList, weekNo):
     min_val = sys.maxsize
@@ -44,7 +147,6 @@ def chooseNextAwayTeam(matchList, weekList, weekNo, awaylist):
         if dict[i] > max_val and i in awaylist:
             max_val = dict[i]
             max_team = i
-
     #print("Max",max_team)
     if dict[max_team] <=1:
         g = dict[max_team] - 1
@@ -57,51 +159,30 @@ def weeklyScheduler(matchList, weekList, weekNo):
     current = 0
     if len(weekList[weekNo]) == 0:
         return True
-    # nextTeam = weekList[weekNo][0]
-  #  print(dict)
-
     dict1 = deepcopy(dict)
     nextTeam = chooseNextHomeTeam(matchList, weekList, weekNo)
-    # print(nextTeam)
-    # print(dict[nextTeam])
-    #print("HT",nextTeam)
-    #print(matchesPlayed)
-    #print("Home",nextTeam)
-    # if nextTeam == -1:
-    #     return False
     weekList[weekNo].remove(nextTeam)
-    away_try_list = deepcopy(weekList[weekNo])
     weekListcopy = deepcopy(weekList[weekNo])
-    #print(dict1)
-    #teamUntested = deepcopy(weekList[weekNo])
+    away_try_list = deepcopy(weekList[weekNo])
     while current < len(weekList[weekNo]):
         t = chooseNextAwayTeam(matchList, weekList, weekNo, away_try_list)
+        #t = weekList[weekNo][current]
         new_val = t[1]
-        #print(new_val)
         away_team = t[0]
         away_try_list.remove(away_team)
-        #print(away_team)
-        # if t == -1:
-        #     return False;
-        #t = weekList[weekNo][current]
         match = (nextTeam, away_team)
         if checkConsistency(match) == True:
-            #print(match)
-            #print("t")
             global matchesPlayed
             matchesPlayed.append(match)
             weekList[weekNo].remove(away_team)
-            #teamUntested.remove(t)
-            matchList[weekNo].append(match)
             dict[away_team] = new_val
-
+            matchList[weekNo].append(match)
             if weeklyScheduler(matchList, weekList, weekNo) == False:
                 if match in matchesPlayed:
                     matchesPlayed.remove(match)
                 if match in matchList[weekNo]:
                     matchList[weekNo].remove(match)
                 match = ()
-
                 del weekList[weekNo]
                 weekList[weekNo] = deepcopy(weekListcopy)
                 dict = deepcopy(dict1)
@@ -109,11 +190,8 @@ def weeklyScheduler(matchList, weekList, weekNo):
                 return True
         else:
             match=()
-            #teamUntested.remove(t)
         current+=1
     return False
-
-
 
 def generateReverse(matchList, weekNo):
     currentList = matchList[weekNo]
@@ -127,34 +205,104 @@ def generateReverse(matchList, weekNo):
 
 #main method to orchestrate the program solution
 def main():
-    teamCount = 20 #teams count
+    teamCount = 20                       #teams count
     construct_dictionary(teamCount)
     global venueBias
+    global timeSlots
     venueBias = 2                       #home/Away consecutive allowed
+    teamFileName = "C:\Assignment\Teams.txt"
+    stadiumFileName = "C:\Assignment\Stadiums.txt"
+    resultFileName = "C:\Assignment\Result.txt"
+    teamsList = []                      #contains team list
+    stadiumList = []                    #contains stadium list
+    teamDict = {}                       #contains Team Info
     teamList = []                       #list of all teams
     matchList = {}                      #fixture schedule
     reverseSchedule = {}                #reverse fixture schedule
-    weekList = {}           #list of all teams for all weeks
-    #print(dict)
+    weekList = {}                       #list of all teams for all weeks
+    try:
+        teamfile = open(teamFileName, "r")
+        stadiumfile = open(stadiumFileName, "r")
+        resultfile = open(resultFileName, "w")
+    except(FileNotFoundError, FileExistsError, IOError) as err:
+        print("Error while handling files")
+        print(err)
+    for line in teamfile:
+        currentLine = line.split(',')
+        teamsList.append(currentLine)
+    for line in stadiumfile:
+        currentLine = line.split(',')
+        stadiumList.append(currentLine)
+    for i in range(0,len(teamsList)):
+        teamRec = teamsList[i]
+        stadiumRec = stadiumList[i]
+        teamNo, teamName, teamWeight = int(teamRec[0]) , teamRec[1] , float(teamRec[2])
+        teamNo, stadiumName, city = int(stadiumRec[0]) , stadiumRec[1] , re.sub(r'\s', '', stadiumRec[2])
+        teamDict[teamNo]=[teamName, teamWeight, stadiumName, city]
+    generateDerbies(teamDict)
+    sundays = getsundays(date(2016, 8, 15), date(2017, 5, 15))
     for i in range(0, teamCount-1):
         teamList = list(range(0,teamCount))
         #random.shuffle(teamList)
         weekList[i] = teamList
         matchList[i] = []
-        #print("Week List",weekList)
-        # print("Global Match",matchesPlayed)
         weeklyScheduler(matchList, weekList, i)
         reverseSchedule[i] =[]
-        reverseSchedule[i].append(generateReverse(matchList, i))
+        reverseSchedule[i] = generateReverse(matchList, i)
         print(matchList[i])
-       # print(dict)
-        # print(matchesPlayed)
-        # print(dict)
-    #print(dict)
-
-        #print(reverseSchedule[i])
-    #print(matchesPlayed)
-
+    for i in range(0, teamCount - 1):
+        resultfile.write("###########################################\n\n")
+        resultfile.write("week "+str(i+1)+"\n\n")
+        sortedList = sortMatchList(matchList[i], teamDict)
+        timeSortedList = sortTimeBased(sortedList[3:])
+        finalList = sortedList[0:3]+timeSortedList
+        for j in range(3, int(teamCount/2)):
+            if j == 3:
+                currDate = sundays[i] - timedelta(days=1)
+                resultfile.write(getDay(currDate)+", "+ getMonth(currDate)+" "+
+                                 str(currDate.day)+" "+ str(currDate.year) +" \n\n")
+            resultfile.write(teamDict[finalList[j][1][0]][0] + " Vs "
+                             + teamDict[finalList[j][1][1]][0] + "  KO "
+                             + finalList[j][0]+"\n")
+        for j in range(2, -1, -1):
+            if j==2:
+                currDate = sundays[i]
+                resultfile.write("\n"+getDay(currDate) + ", " + getMonth(currDate) + " " +
+                                 str(currDate.day) + " " + str(currDate.year) + " \n\n")
+            resultfile.write(teamDict[finalList[j][1][0]][0] + " Vs "
+                             + teamDict[finalList[j][1][1]][0] + "  KO "
+                             + timeSlots[j]+"\n")
+    for i in range(teamCount, (2*teamCount)-1):
+        resultfile.write("###########################################\n\n")
+        resultfile.write("week "+str(i)+"\n\n")
+        sortedList = sortMatchList(reverseSchedule[i-teamCount], teamDict)
+        timeSortedList = sortTimeBased(sortedList[3:])
+        finalList = sortedList[0:3] + timeSortedList
+        if i == (2*teamCount)-2:
+            for j in range(0, int(teamCount / 2)):
+                if j == 0:
+                    currDate = sundays[i]
+                    resultfile.write(getDay(currDate) + ", " + getMonth(currDate) + " " +
+                                     str(currDate.day) + " " + str(currDate.year) + " \n\n")
+                resultfile.write(teamDict[finalList[j][1][0]][0] + " Vs "
+                                 + teamDict[finalList[j][1][1]][0] + "  KO "
+                                 + timeSlots[1] + "\t Venue: " + teamDict[finalList[j][1][0]][2] + "\n")
+        else:
+            for j in range(3, int(teamCount/2)):
+                if j == 3:
+                    currDate = sundays[i] - timedelta(days=1)
+                    resultfile.write(getDay(currDate)+", "+ getMonth(currDate)+" "+
+                                     str(currDate.day)+" "+ str(currDate.year) +" \n\n")
+                resultfile.write(teamDict[finalList[j][1][0]][0] + " Vs "
+                                 + teamDict[finalList[j][1][1]][0] + "  KO "
+                                 + finalList[j][0]+" Venue: "+ teamDict[finalList[j][1][1]][2]+ "\n")
+            for j in range(2, -1, -1):
+                if j==2:
+                    currDate = sundays[i]
+                    resultfile.write("\n"+getDay(currDate) + ", " + getMonth(currDate) + " " +
+                                     str(currDate.day) + " " + str(currDate.year) + " \n\n")
+                resultfile.write(teamDict[finalList[j][1][0]][0] + " Vs "
+                                 + teamDict[finalList[j][1][1]][0] + "  KO "
+                                 + timeSlots[j]+"\n")
 if __name__ == "__main__":
     main()
-
