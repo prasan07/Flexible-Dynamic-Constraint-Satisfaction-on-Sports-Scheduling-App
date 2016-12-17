@@ -1,0 +1,160 @@
+import sys
+from copy import deepcopy
+import random
+
+matchesPlayed = []
+venueBias = 0
+dict = {}
+
+def construct_dictionary(team_count):
+    for i in range(team_count):
+        if i % 2 == 0:
+            dict[i] = 0
+        else:
+            dict[i] = 1
+
+#method to check if the assigned state is consistent
+def checkConsistency(match):
+    global matchesPlayed
+    if match in matchesPlayed:
+        return False
+    else:
+        return True
+
+
+def chooseNextHomeTeam(matchList, weekList, weekNo):
+    min_val = sys.maxsize
+    min_team = -1
+    for i in weekList[weekNo]:
+        if dict[i] < min_val:
+            min_val = dict[i]
+            min_team = i
+    if dict[min_team] >= 0:
+        dict[min_team]+=1
+    else:
+        dict[min_team] = 1
+    return min_team
+
+def chooseNextAwayTeam(matchList, weekList, weekNo, awaylist):
+    max_val = -sys.maxsize
+    max_team = -1
+    g = -1
+    #print(weekList[weekNo])
+    for i in weekList[weekNo]:
+        if dict[i] > max_val and i in awaylist:
+            max_val = dict[i]
+            max_team = i
+
+    #print("Max",max_team)
+    if dict[max_team] <=1:
+        g = dict[max_team] - 1
+    else:
+        g = 0
+    return (max_team,g)
+
+def weeklyScheduler(matchList, weekList, weekNo):
+    global dict
+    current = 0
+    if len(weekList[weekNo]) == 0:
+        return True
+    # nextTeam = weekList[weekNo][0]
+  #  print(dict)
+
+    dict1 = deepcopy(dict)
+    nextTeam = chooseNextHomeTeam(matchList, weekList, weekNo)
+    # print(nextTeam)
+    # print(dict[nextTeam])
+    #print("HT",nextTeam)
+    #print(matchesPlayed)
+    #print("Home",nextTeam)
+    # if nextTeam == -1:
+    #     return False
+    weekList[weekNo].remove(nextTeam)
+    away_try_list = deepcopy(weekList[weekNo])
+    weekListcopy = deepcopy(weekList[weekNo])
+    #print(dict1)
+    #teamUntested = deepcopy(weekList[weekNo])
+    while current < len(weekList[weekNo]):
+        t = chooseNextAwayTeam(matchList, weekList, weekNo, away_try_list)
+        new_val = t[1]
+        #print(new_val)
+        away_team = t[0]
+        away_try_list.remove(away_team)
+        #print(away_team)
+        # if t == -1:
+        #     return False;
+        #t = weekList[weekNo][current]
+        match = (nextTeam, away_team)
+        if checkConsistency(match) == True:
+            #print(match)
+            #print("t")
+            global matchesPlayed
+            matchesPlayed.append(match)
+            weekList[weekNo].remove(away_team)
+            #teamUntested.remove(t)
+            matchList[weekNo].append(match)
+            dict[away_team] = new_val
+
+            if weeklyScheduler(matchList, weekList, weekNo) == False:
+                if match in matchesPlayed:
+                    matchesPlayed.remove(match)
+                if match in matchList[weekNo]:
+                    matchList[weekNo].remove(match)
+                match = ()
+
+                del weekList[weekNo]
+                weekList[weekNo] = deepcopy(weekListcopy)
+                dict = deepcopy(dict1)
+            else:
+                return True
+        else:
+            match=()
+            #teamUntested.remove(t)
+        current+=1
+    return False
+
+
+
+def generateReverse(matchList, weekNo):
+    currentList = matchList[weekNo]
+    reverseList = []
+    for match in currentList:
+        reverseMatch = (match[1], match[0])
+        reverseList.append(reverseMatch)
+        global matchesPlayed
+        matchesPlayed.append(reverseMatch)
+    return reverseList
+
+#main method to orchestrate the program solution
+def main():
+    teamCount = 20 #teams count
+    construct_dictionary(teamCount)
+    global venueBias
+    venueBias = 2                       #home/Away consecutive allowed
+    teamList = []                       #list of all teams
+    matchList = {}                      #fixture schedule
+    reverseSchedule = {}                #reverse fixture schedule
+    weekList = {}           #list of all teams for all weeks
+    #print(dict)
+    for i in range(0, teamCount-1):
+        teamList = list(range(0,teamCount))
+        #random.shuffle(teamList)
+        weekList[i] = teamList
+        matchList[i] = []
+        #print("Week List",weekList)
+        # print("Global Match",matchesPlayed)
+        weeklyScheduler(matchList, weekList, i)
+        reverseSchedule[i] =[]
+        reverseSchedule[i].append(generateReverse(matchList, i))
+        print(matchList[i])
+       # print(dict)
+        # print(matchesPlayed)
+        # print(dict)
+    #print(dict)
+
+        #print(reverseSchedule[i])
+    #print(matchesPlayed)
+
+if __name__ == "__main__":
+    main()
+
