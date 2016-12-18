@@ -1,0 +1,297 @@
+from tkinter import *
+from tkinter.ttk import *
+from tkinter import ttk
+from PIL import Image, ImageTk
+import time
+
+
+class AppNext(Frame):
+    def __init__(self, parent):
+        Frame.__init__(self, parent)
+        self.CreateUI()
+        self.LoadTable()
+
+        self.grid(sticky=(N, S, W, E))
+        parent.grid_rowconfigure(0, weight=1)
+        parent.grid_columnconfigure(0, weight=1)
+
+    def CreateUI(self):
+        style = ttk.Style()
+        style.configure(".", font=('Helvetica', 8), foreground="white")
+        style.configure("Treeview", foreground='black')
+        style.configure("Treeview.Heading", foreground='Black')
+
+        tv = Treeview(self)
+        root_pic1 = Image.open(sys.argv[1])  # Open the image like this first
+        self.root_pic2 = ImageTk.PhotoImage(root_pic1)
+        tv.tag_configure('oddrow', background='light grey')
+        tv.tag_configure('evenrow', background='light blue')
+        tv.tag_configure('monospace', font='')
+        # var = StringVar()
+        # label = Label(tv, textvariable=var, relief=RAISED)
+
+        # var.set("Hey!? How are you doing?")
+        # label.pack()
+
+        root_pic1 = Image.open("test.png")  # Open the image like this first
+        self.root_pic2 = ImageTk.PhotoImage(root_pic1)
+        tv['columns'] = ('derby', 'starttime', 'endtime', 'status', 'venue')
+        # tv.heading("#0", anchor="w", text='Saturday, 17 December 2016' )
+        # tv.column("#0", anchor="center",width=50,stretch=NO)
+        tv.column('derby', anchor='center', width=100, stretch=NO)
+        # tv.heading('starttime', text='')
+        tv.column('starttime', anchor='center', width=110, stretch=NO)
+        # tv.heading('endtime', text='')
+        tv.column('endtime', anchor='center', width=100, stretch=NO)
+        tv.column('venue', anchor='center', width=100, stretch=NO)
+        # tv.heading('status', text='')
+        tv.heading("#0", text='Saturday, 12/17/16', )
+        tv.column("#0", anchor="center", width=110, stretch=NO)
+        tv.grid(sticky=(N, S, W, E))
+        self.treeview = tv
+        self.grid_rowconfigure(0, weight=0)
+        self.grid_columnconfigure(0, weight=0)
+
+    def LoadTable(self):
+        self.treeview.insert('', 'end', image=self.root_pic2, values=('10:00 a.m', 'Manchester United', 'vs'
+                                                                                                        '          Liverpool',
+                                                                      'Turfmore'), tags=('oddrow',))
+        self.treeview.insert('', 'end', text="Derby",
+                             values=('10:00 a.m', 'Manchester United', 'vs''          Liverpool', "Old Trafford"),
+                             tags=('evenrow',))
+        self.treeview.insert('', 'end', text="Derby", values=('10:00 a.m', 'Manchester United', 'vs'
+                                                                                                '          Liverpool',
+                                                              'Turfmore'), tags=('oddrow',))
+        self.treeview.insert('', 'end', text="Derby", values=('10:00 a.m', 'Manchester United', 'vs'
+                                                                                                '          Liverpool',
+                                                              "Yankees"),
+                             tags=('evenrow',))
+        self.treeview.insert('', 'end', text="Sunday, 12/18/16", tags=('monospace',))
+        self.treeview.insert('', 'end', image=self.root_pic2, values=('10:00 a.m', 'Manchester United', 'vs'
+                                                                                                        '          Liverpool',
+                                                                      'Turfmore'),
+                             tags=('oddrow',))
+        self.treeview.insert('', 'end', text="Derby", values=('10:00 a.m', 'Manchester United', 'vs'
+                                                                                                '          Liverpool',
+                                                              'Turfmore'),
+                             tags=('evenrow',))
+        self.treeview.insert('', 'end', text="Derby", values=('10:00 a.m', 'Manchester United', 'vs'
+                                                                                                '          Liverpool',
+                                                              'Turfmore'),
+                             tags=('oddrow',))
+        self.treeview.insert('', 'end', text="Derby", values=('10:00 a.m', 'Manchester United', 'vs'
+                                                                                                '          Liverpool',
+                                                              'Turfmore'),
+                             tags=('evenrow',))
+
+
+class AppPrev(Frame):
+
+
+    def __init__(self, parent):
+        Frame.__init__(self, parent)
+        self.CreateUI()
+        self.LoadTable()
+
+        self.grid(sticky = (N,S,W,E))
+        parent.grid_rowconfigure(0, weight = 1)
+        parent.grid_columnconfigure(0, weight = 1)
+
+    def CreateUI(self):
+
+        style = ttk.Style()
+        style.configure(".", font=('Helvetica', 8), foreground="white")
+        style.configure("Treeview", foreground='black')
+        style.configure("Treeview.Heading", foreground='Black')
+
+        tv = Treeview(self)
+        root_pic1 = Image.open(sys.argv[1])  # Open the image like this first
+        self.root_pic2 = ImageTk.PhotoImage(root_pic1)
+        tv.tag_configure('oddrow', background='light grey')
+        tv.tag_configure('evenrow', background='light blue')
+        tv.tag_configure('monospace', font='')
+        #var = StringVar()
+        #label = Label(tv, textvariable=var, relief=RAISED)
+
+        #var.set("Hey!? How are you doing?")
+        #label.pack()
+
+        root_pic1 = Image.open("test.png")  # Open the image like this first
+        self.root_pic2 = ImageTk.PhotoImage(root_pic1)
+        tv['columns'] = ('derby','starttime', 'endtime', 'status','venue')
+        #tv.heading("#0", anchor="w", text='Saturday, 17 December 2016' )
+        #tv.column("#0", anchor="center",width=50,stretch=NO)
+        tv.column('derby', anchor='center', width=100, stretch=NO)
+        #tv.heading('starttime', text='')
+        tv.column('starttime', anchor='center', width=110,stretch=NO)
+        #tv.heading('endtime', text='')
+        tv.column('endtime', anchor='center', width=100,stretch=NO)
+        tv.column('venue', anchor='center', width=100, stretch=NO)
+        #tv.heading('status', text='')
+        tv.heading("#0", text='Saturday, 12/17/16',)
+        tv.column("#0", anchor="center", width=110, stretch=NO)
+        tv.grid(sticky = (N,S,W,E))
+        self.treeview = tv
+        self.grid_rowconfigure(0, weight = 0)
+        self.grid_columnconfigure(0, weight = 0)
+
+
+
+    def LoadTable(self):
+        self.treeview.insert('', 'end', image=self.root_pic2, values=('10:00 a.m','Manchester United','vs'
+                             '          Liverpool','Turfmore'),tags = ('oddrow',))
+        self.treeview.insert('', 'end', text="Derby", values=('10:00 a.m', 'Manchester United', 'vs''          Liverpool',"Old Trafford"),
+                             tags=('evenrow',))
+        self.treeview.insert('', 'end', text="Derby", values=('10:00 a.m','Manchester United','vs'
+                             '          Liverpool','Turfmore'),tags = ('oddrow',))
+        self.treeview.insert('', 'end', text="Derby", values=('10:00 a.m', 'Manchester United', 'vs'
+                                                                                                '          Liverpool',"Yankees"),
+                             tags=('evenrow',))
+        self.treeview.insert('','end',text="Sunday, 12/18/16"  ,tags=('monospace',)  )
+        self.treeview.insert('', 'end', image=self.root_pic2, values=('10:00 a.m', 'Manchester United', 'vs'
+                                                                                                        '          Liverpool','Turfmore'),
+                             tags=('oddrow',))
+        self.treeview.insert('', 'end', text="Derby", values=('10:00 a.m', 'Manchester United', 'vs'
+                                                                                                '          Liverpool','Turfmore'),
+                             tags=('evenrow',))
+        self.treeview.insert('', 'end', text="Derby", values=('10:00 a.m', 'Manchester United', 'vs'
+                                                                                                '          Liverpool','Turfmore'),
+                             tags=('oddrow',))
+        self.treeview.insert('', 'end', text="Derby", values=('10:00 a.m', 'Manchester United', 'vs'
+                                                                                                '          Liverpool','Turfmore'),
+                             tags=('evenrow',))
+
+
+class App(Frame):
+
+    def __init__(self, parent):
+        Frame.__init__(self, parent)
+        self.CreateUI()
+        self.LoadTable()
+
+        self.grid(sticky = (N,S,W,E))
+        parent.grid_rowconfigure(0, weight = 1)
+        parent.grid_columnconfigure(0, weight = 1)
+
+    def CreateUI(self):
+
+        style = ttk.Style()
+        style.configure(".", font=('Helvetica', 8), foreground="white")
+        style.configure("Treeview", foreground='black')
+        style.configure("Treeview.Heading", foreground='Black')
+
+        tv = Treeview(self)
+        root_pic1 = Image.open(sys.argv[1])  # Open the image like this first
+        self.root_pic2 = ImageTk.PhotoImage(root_pic1)
+        tv.tag_configure('oddrow', background='light grey')
+        tv.tag_configure('evenrow', background='light blue')
+        tv.tag_configure('monospace', font='')
+        #var = StringVar()
+        #label = Label(tv, textvariable=var, relief=RAISED)
+
+        #var.set("Hey!? How are you doing?")
+        #label.pack()
+
+        root_pic1 = Image.open("test.png")  # Open the image like this first
+        self.root_pic2 = ImageTk.PhotoImage(root_pic1)
+        tv['columns'] = ('derby','starttime', 'endtime', 'status','venue')
+        #tv.heading("#0", anchor="w", text='Saturday, 17 December 2016' )
+        #tv.column("#0", anchor="center",width=50,stretch=NO)
+        tv.column('derby', anchor='center', width=100, stretch=NO)
+        #tv.heading('starttime', text='')
+        tv.column('starttime', anchor='center', width=110,stretch=NO)
+        #tv.heading('endtime', text='')
+        tv.column('endtime', anchor='center', width=100,stretch=NO)
+        tv.column('venue', anchor='center', width=100, stretch=NO)
+        #tv.heading('status', text='')
+        tv.heading("#0", text='Saturday, 12/17/16',)
+        tv.column("#0", anchor="center", width=110, stretch=NO)
+        tv.grid(sticky = (N,S,W,E))
+        self.treeview = tv
+        self.grid_rowconfigure(0, weight = 0)
+        self.grid_columnconfigure(0, weight = 0)
+
+
+
+    def LoadTable(self):
+        self.treeview.insert('', 'end', image=self.root_pic2, values=('10:00 a.m','Manchester United','vs'
+                             '          Liverpool','Turfmore'),tags = ('oddrow',))
+        self.treeview.insert('', 'end', text="Derby", values=('10:00 a.m', 'Manchester United', 'vs''          Liverpool',"Old Trafford"),
+                             tags=('evenrow',))
+        self.treeview.insert('', 'end', text="Derby", values=('10:00 a.m','Manchester United','vs'
+                             '          Liverpool','Turfmore'),tags = ('oddrow',))
+        self.treeview.insert('', 'end', text="Derby", values=('10:00 a.m', 'Manchester United', 'vs'
+                                                                                                '          Liverpool',"Yankees"),
+                             tags=('evenrow',))
+        self.treeview.insert('','end',text="Sunday, 12/18/16"  ,tags=('monospace',)  )
+        self.treeview.insert('', 'end', image=self.root_pic2, values=('10:00 a.m', 'Manchester United', 'vs'
+                                                                                                        '          Liverpool','Turfmore'),
+                             tags=('oddrow',))
+        self.treeview.insert('', 'end', text="Derby", values=('10:00 a.m', 'Manchester United', 'vs'
+                                                                                                '          Liverpool','Turfmore'),
+                             tags=('evenrow',))
+        self.treeview.insert('', 'end', text="Derby", values=('10:00 a.m', 'Manchester United', 'vs'
+                                                                                                '          Liverpool','Turfmore'),
+                             tags=('oddrow',))
+        self.treeview.insert('', 'end', text="Derby", values=('10:00 a.m', 'Manchester United', 'vs'
+                                                                                                '          Liverpool','Turfmore'),
+                             tags=('evenrow',))
+def prevAction():
+    root.destroy()
+    time.sleep(1)
+    root1=Tk()
+    AppPrev(root1)
+    main_menu = Menu(root1, tearoff=0)
+    main_menu.add_command(label="Previous Week", command=prevAction)
+    main_menu.add_command(
+        label="                                                                                                          ")
+    main_menu.add_command(label="Next Week", command=nextAction)
+    root1.config(menu=main_menu)
+    root1.iconphoto(root1, PhotoImage(file=sys.argv[1]))
+    root1.title("Schedule")
+    root1.configure(bg='blue')
+    root1.geometry("500x300+500+300")
+    root1.mainloop()
+
+
+def nextAction():
+    root.destroy()
+    time.sleep(1)
+    root2 = Tk()
+    AppNext(root2)
+    main_menu = Menu(root2, tearoff=0)
+    main_menu.add_command(label="Previous Week", command=prevAction)
+    main_menu.add_command(
+        label="                                                                                                          ")
+    main_menu.add_command(label="Next Week", command=nextAction)
+    root2.config(menu=main_menu)
+    root2.iconphoto(root2, PhotoImage(file=sys.argv[1]))
+    root2.title("Schedule")
+    root2.configure(bg='blue')
+    root2.geometry("500x300+500+300")
+    root2.mainloop()
+
+
+def quit():
+    global root1
+    root.quit()
+
+
+root = Tk()
+#root1=Tk()
+
+def main():
+    App(root)
+    main_menu = Menu(root, tearoff=0)
+    main_menu.add_command(label="Previous Week", command=prevAction)
+    main_menu.add_command(label="                                                                                                          ")
+    main_menu.add_command(label="Next Week", command=nextAction)
+    root.config(menu=main_menu)
+    root.iconphoto(root, PhotoImage(file=sys.argv[1]))
+    root.title("Schedule")
+    root.configure(bg='blue')
+    root.geometry("550x300+500+300")
+    root.mainloop()
+
+if __name__ == '__main__':
+    main()
